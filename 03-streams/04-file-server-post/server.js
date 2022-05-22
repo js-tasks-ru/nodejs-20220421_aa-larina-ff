@@ -42,9 +42,7 @@ server.on('request', (req, res) => {
         });
 
         req.on('error', () => {
-          fs.unlink(filepath, () => {
-            console.log('Server shutdown, file was deleted');
-          });
+          fs.unlink(filepath, null);
           limitedStream.end();
           wStream.end();
         });
@@ -52,6 +50,7 @@ server.on('request', (req, res) => {
         limitedStream.on('error', (err) => {
           res.writeHead(413, {'content-type': 'text/plain'});
           res.end('The file size must be limited with 1 MB.');
+          fs.unlink(filepath, null);
           wStream.end();
         });
 
