@@ -37,12 +37,13 @@ server.on('request', (req, res) => {
         req.pipe(limitedStream).pipe(wStream);
 
         req.on('end', () => {
-          res.end();
+          res.writeHead(201, {'content-type': 'text/plain'});
+          res.end('File was successfully uploaded.');
           wStream.end();
         });
 
         req.on('error', () => {
-          fs.unlink(filepath, null);
+          fs.unlink(filepath, () => {});
           limitedStream.end();
           wStream.end();
         });
@@ -50,7 +51,7 @@ server.on('request', (req, res) => {
         limitedStream.on('error', (err) => {
           res.writeHead(413, {'content-type': 'text/plain'});
           res.end('The file size must be limited with 1 MB.');
-          fs.unlink(filepath, null);
+          fs.unlink(filepath, () => {});
           wStream.end();
         });
 
