@@ -15,7 +15,7 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'POST':
-      const wStream = fs.createWriteStream(filepath);
+      // const wStream = fs.createWriteStream(filepath);
       const limitedStream = new LimitSizeStream({limit: 1048576, encoding: 'utf-8'}); // 1 Мб
 
       let fileExists = false;
@@ -26,38 +26,40 @@ server.on('request', (req, res) => {
       if (fileExists) {
         res.writeHead(409, {'content-type': 'text/plain'});
         res.end('Filename with name ' + pathname + ' already exists.');
-      }
+      } else {
+        const wStream = fs.createWriteStream(filepath);
 
-      if (pathname.includes('\/')) {
-        res.writeHead(400, {'Content-Type': 'text/plain'});
-        res.end('Nested path is not supported');
-      }
+        if (pathname.includes('\/')) {
+          res.writeHead(400, {'Content-Type': 'text/plain'});
+          res.end('Nested path is not supported');
+        }
 
-      req.pipe(limitedStream).pipe(wStream);
+        req.pipe(limitedStream).pipe(wStream);
 
-      req.on('end', () => {
-        res.end();
-        wStream.end();
-      });
-
-      req.on('error', () => {
-        fs.unlink(filepath, () => {
-          console.log('Server shutdown, file was deleted');
+        req.on('end', () => {
+          res.end();
+          wStream.end();
         });
-        limitedStream.end();
-        wStream.end();
-      });
 
-      limitedStream.on('error', (err) => {
-        res.writeHead(413, {'content-type': 'text/plain'});
-        res.end('The file size must be limited with 1 MB.');
-        wStream.end();
-      });
+        req.on('error', () => {
+          fs.unlink(filepath, () => {
+            console.log('Server shutdown, file was deleted');
+          });
+          limitedStream.end();
+          wStream.end();
+        });
 
-      wStream.on('error', (err) => {
-        res.writeHead(500, {'content-type': 'text/plain'});
-        res.end('Something went wrong');
-      });
+        limitedStream.on('error', (err) => {
+          res.writeHead(413, {'content-type': 'text/plain'});
+          res.end('The file size must be limited with 1 MB.');
+          wStream.end();
+        });
+
+        wStream.on('error', (err) => {
+          res.writeHead(500, {'content-type': 'text/plain'});
+          res.end('Something went wrong');
+        });
+      }
 
       break;
 
