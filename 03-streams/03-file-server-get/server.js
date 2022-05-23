@@ -1,3 +1,5 @@
+const message = require('../message.json');
+
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -20,10 +22,10 @@ server.on('request', (req, res) => {
           if (error.code === 'ENOENT') {
             if (pathname.includes('\/')) {
               res.writeHead(400, {'Content-Type': 'text/html'});
-              res.end('Nested path is not supported');
+              res.end(message['400']);
             } else {
               res.writeHead(404, {'Content-Type': 'text/html'});
-              res.end('File nod found');
+              res.end(message['404-get']);
             }
           }
         });
@@ -34,7 +36,7 @@ server.on('request', (req, res) => {
 
     default:
       res.statusCode = 501;
-      res.end('Not implemented');
+      res.end(message['501']);
   }
 });
 
