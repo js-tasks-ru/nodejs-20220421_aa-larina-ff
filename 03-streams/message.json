@@ -1,0 +1,11 @@
+{
+  "200-delete": "File was successfully deleted",
+  "201": "File was successfully uploaded",
+  "400": "Nested path is not supported",
+  "404-delete": "File not found. Nothing to delete",
+  "404-get": "File not found.",
+  "409": "Filename with this name already exists",
+  "413": "The file size must be limited with 1 MB",
+  "500": "Something went wrong",
+  "501": "Not implemented"
+}

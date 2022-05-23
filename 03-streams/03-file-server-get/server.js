@@ -29,8 +29,6 @@ server.on('request', (req, res) => {
             }
           }
         });
-
-        stream.on('end', () => res.end());
       }
       break;
 
