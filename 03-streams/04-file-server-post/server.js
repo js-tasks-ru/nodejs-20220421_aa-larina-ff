@@ -1,6 +1,6 @@
+const message = require('../message.json');
 const LimitSizeStream = require('../01-limit-size-stream/LimitSizeStream');
 
-const url = require('url');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
@@ -15,7 +15,6 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'POST':
-      // const wStream = fs.createWriteStream(filepath);
       const limitedStream = new LimitSizeStream({limit: 1048576, encoding: 'utf-8'}); // 1 Мб
 
       let fileExists = false;
@@ -25,20 +24,20 @@ server.on('request', (req, res) => {
 
       if (fileExists) {
         res.writeHead(409, {'content-type': 'text/plain'});
-        res.end('Filename with name ' + pathname + ' already exists.');
+        res.end(message['409']);
       } else {
         const wStream = fs.createWriteStream(filepath);
 
         if (pathname.includes('\/')) {
           res.writeHead(400, {'Content-Type': 'text/plain'});
-          res.end('Nested path is not supported');
+          res.end(message['400']);
         }
 
         req.pipe(limitedStream).pipe(wStream);
 
         req.on('end', () => {
           res.writeHead(201, {'content-type': 'text/plain'});
-          res.end('File was successfully uploaded.');
+          res.end(message['201']);
           wStream.end();
         });
 
@@ -50,14 +49,14 @@ server.on('request', (req, res) => {
 
         limitedStream.on('error', (err) => {
           res.writeHead(413, {'content-type': 'text/plain'});
-          res.end('The file size must be limited with 1 MB.');
+          res.end(message['413']);
           fs.unlink(filepath, () => {});
           wStream.end();
         });
 
         wStream.on('error', (err) => {
           res.writeHead(500, {'content-type': 'text/plain'});
-          res.end('Something went wrong');
+          res.end(message['500']);
         });
       }
 
@@ -65,7 +64,7 @@ server.on('request', (req, res) => {
 
     default:
       res.statusCode = 501;
-      res.end('Not implemented');
+      res.end(message['501']);
   }
 });
 
