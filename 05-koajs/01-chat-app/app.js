@@ -11,10 +11,12 @@ const router = new Router();
 let msg = null;
 let ps = null;
 let promiseResolve = null;
+let promiseReject = null;
 
 function hangRequest() {
-  ps = new Promise((resolve) => {
+  ps = new Promise((resolve, reject) => {
     promiseResolve = resolve;
+    promiseReject = reject;
   });
 }
 
@@ -28,6 +30,15 @@ router.get('/subscribe', async (ctx, next) => {
 
 router.post('/publish', async (ctx, next) => {
   msg = ctx.request.body.message;
+  if (!msg) {
+    promiseReject('Empty message not allowed');
+    hangRequest();
+    ctx.body = {
+      error: 'Empty message',
+    };
+    return;
+  }
+
   promiseResolve(msg);
   ctx.body = {
     message: ctx.request.body.message,
