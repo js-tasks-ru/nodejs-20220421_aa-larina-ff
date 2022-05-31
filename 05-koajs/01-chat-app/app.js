@@ -23,9 +23,14 @@ function hangRequest() {
 hangRequest();
 
 router.get('/subscribe', async (ctx, next) => {
-  await ps.then(() => {
-    ctx.body = msg;
-  }).then(() => hangRequest());
+  await ps
+      .then(
+          () => {
+            ctx.body = msg;
+          },
+      )
+      .then(() => hangRequest())
+      .catch((error) => ctx.body = error.message);
 });
 
 router.post('/publish', async (ctx, next) => {
