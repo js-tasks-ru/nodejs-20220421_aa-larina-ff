@@ -78,7 +78,6 @@ router.post('/confirm', confirm);
 
 router.get('/orders', mustBeAuthenticated, getOrdersList);
 router.post('/orders', mustBeAuthenticated, handleMongooseValidationError, checkout);
-// router.post('/orders', checkout);
 
 app.use(router.routes());
 
