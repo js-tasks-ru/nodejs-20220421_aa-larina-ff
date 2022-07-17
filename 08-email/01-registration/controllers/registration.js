@@ -9,6 +9,7 @@ module.exports.register = async (ctx, next) => {
   if (user) {
     ctx.status = 400;
     ctx.body = {errors: {email: 'Такой email уже существует'}};
+    return;
   }
 
   const newUser = new User({
@@ -17,7 +18,6 @@ module.exports.register = async (ctx, next) => {
     verificationToken: token,
   });
   await newUser.setPassword(ctx.request.body.password).then(() => newUser.save());
-
 
   await sendMail({
     template: 'confirmation',
